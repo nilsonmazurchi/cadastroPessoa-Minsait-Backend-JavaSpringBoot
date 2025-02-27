@@ -33,17 +33,6 @@ export class PessoaService {
     return this.http.get(`https://viacep.com.br/ws/${cep}/json/`);
   }
 
-  // Método para adicionar uma nova pessoa
-  //addPessoa(pessoa: Pessoa): Observable<Pessoa> {
-    //return this.http.post<Pessoa>(this.apiUrl, pessoa);
-  //}
-
-  // Método para salvar a lista de pessoas (simulando um backend)
-  //private salvarPessoas(pessoas: Pessoa[]): void {
-    // Simulando um backend local (essa parte só funcionaria com um servidor real)
-    //console.log('Atualizando JSON:', JSON.stringify(pessoas, null, 2));
-  //}
-
   // Método para verificar se já existe uma pessoa com o mesmo conjunto de dados
   verificarPessoaExistente(pessoa: Pessoa): Observable<Pessoa[]> {
     // Aqui você pode comparar com os dados no arquivo JSON ou backend
