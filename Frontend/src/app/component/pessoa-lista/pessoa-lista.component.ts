@@ -9,40 +9,40 @@ import { Router } from '@angular/router';
   styleUrls: ['./pessoa-lista.component.scss']
 })
 export class PessoaListaComponent implements OnInit {
-  // Define a lista de pessoas recebida como entrada do componente pai
   @Input() pessoas: Pessoa[] = [];
+  pessoaSelecionada: Pessoa | null = null;
 
-  // Construtor para injeção de dependências
-  constructor(private readonly pessoaService: PessoaService, private readonly router: Router) {}
+  constructor(public readonly pessoaService: PessoaService, private readonly router: Router) {}
 
-  // Método ngOnInit chamado ao inicializar o componente
   ngOnInit() {
     this.carregarPessoas();
   }
 
-  // Método para carregar a lista de pessoas do backend
   carregarPessoas() {
     this.pessoaService.getPessoas().subscribe((dados) => {
       this.pessoas = dados;
     });
   }
 
-  // Método para editar uma pessoa, redirecionando para a página de edição
-  editarPessoa(id: number) {
-    this.router.navigate(['/edicao/', id]);
+  selecionarPessoa(pessoa: Pessoa) {
+    this.pessoaService.setModoEdicao(true);
+    this.pessoaSelecionada = { ...pessoa }; // Faz uma cópia para evitar alterações diretas
   }
 
-  // Método para excluir uma pessoa, perguntando se o usuário tem certeza
+  aoSalvarPessoa() {
+    this.pessoaSelecionada = null;
+    this.carregarPessoas(); // Atualiza a lista após edição
+  }
+
   excluirPessoa(id: number) {
     if (window.confirm('Tem certeza que deseja excluir esta pessoa?')) {
       this.pessoaService.deletePessoa(id).subscribe(() => {
-        this.carregarPessoas(); // Recarrega a lista após a exclusão
+        this.carregarPessoas();
       });
     }
   }
 
-  // Método para voltar para a página inicial
   voltarParaHome() {
-    this.router.navigate(['/']); // Redireciona para a raiz
+    this.router.navigate(['/']);
   }
 }

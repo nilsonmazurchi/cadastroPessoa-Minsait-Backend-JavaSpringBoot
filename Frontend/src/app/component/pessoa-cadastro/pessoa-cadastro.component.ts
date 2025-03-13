@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Pessoa } from 'src/app/models/pessoa';
 import { PessoaService } from '../../pessoa.service';
 import { Router } from '@angular/router';
@@ -12,7 +12,8 @@ import { NgForm } from '@angular/forms';
 export class PessoaCadastroComponent {
 
   // Objeto pessoa inicializado com valores padrão
-  pessoa: Pessoa = {
+  // Recebe a pessoa a ser editada
+  @Input() pessoa: Pessoa = { // Inicializa um objeto vazio para evitar null
     nome: '',
     endereco: '',
     numero: '',
@@ -22,6 +23,7 @@ export class PessoaCadastroComponent {
     cidade: '',
     uf: ''
   };
+  @Output() salvo = new EventEmitter<void>(); // Notifica o componente pai após salvar
 
   // Variável de controle para exibição de erros
   submitted = false;
@@ -42,18 +44,34 @@ export class PessoaCadastroComponent {
       return;
     }
 
+    if (this.pessoa?.id) {
     this.pessoaService.cadastrarPessoa(this.pessoa).subscribe({
       next: () => {
         alert('Pessoa cadastrada com sucesso!');
-        // Reseta os campos da pessoa após cadastro bem-sucedido
-        this.pessoa = { nome: '', cep: '', endereco: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' };
-        this.submitted = false; // Reseta as mensagens de erro após salvar
-        form.resetForm(); // Limpa o formulário
+        this.salvo.emit(); // Notifica o componente pai que a ação foi concluída
       },
       error: (erro) => {
-        alert('Erro ao cadastrar pessoa: ' + erro.error.message);
-      }
-    });
+        alert('Erro ao atualizar pessoa: ' + erro.error.message);
+        }
+      });
+    } else {
+        // Se não tem ID, é um novo cadastro
+      this.pessoaService.cadastrarPessoa(this.pessoa!).subscribe({
+        next: () => {
+          alert('Pessoa cadastrada com sucesso!');
+          // Reseta os campos após o cadastro
+          this.pessoa = { nome: '', cep: '', endereco: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' };
+          this.submitted = false;
+          form.resetForm();
+          this.salvo.emit(); // Notifica o componente pai
+        },
+        error: (erro) => {
+          alert('Erro ao cadastrar pessoa: ' + erro.error.message);
+        }
+
+      });
+    }
+    this.pessoaService.setModoEdicao(false); // Desativa o modo de edição
   }
 
   /**
@@ -61,27 +79,28 @@ export class PessoaCadastroComponent {
    * Valida se o CEP possui 8 dígitos antes de fazer a requisição ao serviço.
    */
   buscarEnderecoPorCep() {
-    const cepFormatado = this.pessoa.cep.replace(/\D/g, ''); // Remover não numéricos
+    if (!this.pessoa?.cep) return;
 
-    if (cepFormatado.length === 8) { // Verificar se tem 8 dígitos
+    const cepFormatado = this.pessoa.cep.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+    if (cepFormatado.length === 8) {
       this.pessoaService.buscarEnderecoPorCep(cepFormatado).subscribe({
-        next: (dados: { logradouro: string; bairro: string; localidade: string; uf: string }) => {
+        next: (dados) => {
           if (dados.logradouro) {
-            // Atualiza os campos do endereço com os dados obtidos
-            this.pessoa.endereco = dados.logradouro;
-            this.pessoa.bairro = dados.bairro;
-            this.pessoa.cidade = dados.localidade;
-            this.pessoa.uf = dados.uf;
+            // Atualiza os campos do endereço
+            this.pessoa!.endereco = dados.logradouro;
+            this.pessoa!.bairro = dados.bairro;
+            this.pessoa!.cidade = dados.localidade;
+            this.pessoa!.uf = dados.uf;
           } else {
-            alert('Dados do CEP não encontrados ou inválidos.');
+            alert('Endereço não encontrado para este CEP.');
           }
         },
-        error: (erro) => {
-          console.error('Erro ao buscar dados do CEP:', erro);
-          alert('Erro ao buscar dados do CEP. Tente novamente.');
+        error: () => {
+          alert('Erro ao buscar dados do CEP.');
         }
       });
-    } else if (cepFormatado.length > 0) { // Verifica se o CEP tem qualquer tamanho inválido
+    } else if (cepFormatado.length > 0) {
       alert('CEP inválido. O CEP deve ter 8 dígitos.');
     }
   }
@@ -91,24 +110,24 @@ export class PessoaCadastroComponent {
    * Faz a busca do endereço quando o CEP atinge 8 dígitos.
    */
   onCepInput() {
-    const cepFormatado = this.pessoa.cep.replace(/\D/g, ''); // Remover não numéricos
+    if (!this.pessoa?.cep) return;
 
-    if (cepFormatado.length === 8) { // Verificar se o CEP tem 8 dígitos
+    const cepFormatado = this.pessoa.cep.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+    if (cepFormatado.length === 8) {
       this.pessoaService.buscarEnderecoPorCep(cepFormatado).subscribe({
-        next: (dados: { logradouro: string; bairro: string; localidade: string; uf: string }) => {
+        next: (dados) => {
           if (dados.logradouro) {
-            // Preenche automaticamente os campos do endereço
-            this.pessoa.endereco = dados.logradouro;
-            this.pessoa.bairro = dados.bairro;
-            this.pessoa.cidade = dados.localidade;
-            this.pessoa.uf = dados.uf;
+            this.pessoa!.endereco = dados.logradouro;
+            this.pessoa!.bairro = dados.bairro;
+            this.pessoa!.cidade = dados.localidade;
+            this.pessoa!.uf = dados.uf;
           } else {
-            alert('Dados do CEP não encontrados ou inválidos.');
+            alert('Endereço não encontrado para este CEP.');
           }
         },
-        error: (erro) => {
-          console.error('Erro ao buscar dados do CEP:', erro);
-          alert('Erro ao buscar dados do CEP. Tente novamente.');
+        error: () => {
+          alert('Erro ao buscar dados do CEP.');
         }
       });
     }

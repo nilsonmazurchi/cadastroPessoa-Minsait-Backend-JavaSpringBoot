@@ -48,4 +48,13 @@ export class PessoaService {
   deletePessoa(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  private _modoEdicao = false;
+  setModoEdicao(valor: boolean) {
+    this._modoEdicao = valor;
+  }
+
+  getModoEdicao(): boolean {
+    return this._modoEdicao;
+  }
 }

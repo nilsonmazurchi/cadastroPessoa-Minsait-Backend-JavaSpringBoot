@@ -6,7 +6,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PessoaListaComponent } from './component/pessoa-lista/pessoa-lista.component';
 import { PessoaCadastroComponent } from './component/pessoa-cadastro/pessoa-cadastro.component';
-import { PessoaEdicaoComponent } from './component/pessoa-edicao/pessoa-edicao.component';
 import { HomeComponent } from './component/home/home.component';
 import { RouterModule } from '@angular/router';
 
@@ -16,7 +15,6 @@ import { RouterModule } from '@angular/router';
     AppComponent,
     PessoaListaComponent,
     PessoaCadastroComponent,
-    PessoaEdicaoComponent,
     HomeComponent
   ],
   imports: [

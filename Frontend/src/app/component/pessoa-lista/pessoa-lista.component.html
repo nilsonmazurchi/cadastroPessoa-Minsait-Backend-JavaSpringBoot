@@ -25,16 +25,16 @@
         <td>{{ pessoa.uf }}</td>
         <td>
           <!-- Botão de editar para a pessoa, acionando o método editarPessoa com o ID -->
-          <button class="btn btn-primary" (click)="editarPessoa(pessoa.id!)">Editar</button>
+          <button class="btn btn-warning btn-sm me-2" (click)="selecionarPessoa(pessoa)">Editar</button>
           <!-- Botão de excluir para a pessoa, acionando o método excluirPessoa com o ID -->
           <button class="btn btn-danger" (click)="excluirPessoa(pessoa.id!)">Excluir</button>
         </td>
       </tr>
     </tbody>
   </table>
-  <!-- Container com botão para voltar à página inicial -->
-  <div class="container px-4 text-center">
-    <div class="row gx-5 mt-4">
-      <button type="submit" class="btn btn-primary" (click)="voltarParaHome()">Voltar</button>
-    </div>
+  <!-- Exibir formulário de edição quando uma pessoa for selecionada -->
+  <app-pessoa-cadastro *ngIf="pessoaSelecionada" [pessoa]="pessoaSelecionada" (salvo)="aoSalvarPessoa()"></app-pessoa-cadastro>
+
+  <!-- Botão para voltar à página inicial -->
+  <button class="btn btn-secondary mt-3" *ngIf="!pessoaService.getModoEdicao()" (click)="voltarParaHome()">Voltar</button>
   </div>
